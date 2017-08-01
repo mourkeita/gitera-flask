@@ -1,0 +1,2965 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"volu",
+				"volume_type"
+			],
+			[
+				"insta",
+				"instance_type"
+			],
+			[
+				"ar",
+				"arguments"
+			],
+			[
+				"A",
+				"AVAIBILITY_ZONE_B"
+			],
+			[
+				"dhcp",
+				"dhcp_options_id"
+			],
+			[
+				"tr",
+				"treat"
+			],
+			[
+				"se",
+				"set_word"
+			],
+			[
+				"word",
+				"word"
+			],
+			[
+				"IN",
+				"INSTANCE_TYPE_E"
+			],
+			[
+				"OMI_",
+				"OMI_WIN"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/Users/mourkeita/osc-ka/osc-qa/Basic_tests/create_instances_generic.py",
+			"settings":
+			{
+				"buffer_size": 3954,
+				"line_ending": "Unix",
+				"name": "#! /usr/bin/python"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/osc-qa/Basic_tests/direct_link_quota_ressources_test.py",
+			"settings":
+			{
+				"buffer_size": 6636,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-eu-instance-pin-gpu.py",
+			"settings":
+			{
+				"buffer_size": 5509,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-ka/osc-qa/Basic_tests/014_manual_test.py",
+			"settings":
+			{
+				"buffer_size": 5164,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-eu-pin.py",
+			"settings":
+			{
+				"buffer_size": 4067,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#! /usr/bin/env python\n# coding: utf-8\n\n'''\nCe script teste différentes fonctionnalités \n'''\n\nimport boto\nimport logging\nimport os\nimport random\nimport ssl\nimport string\nimport time\n\nfrom boto import ec2\nfrom boto import vpc\nfrom boto import exception\n\nfrom boto.ec2.blockdevicemapping import BlockDeviceMapping, BlockDeviceType\nfrom boto.ec2.regioninfo import RegionInfo\nfrom boto.exception import EC2ResponseError\nfrom boto.vpc import VPCConnection\n\nfrom logging import Formatter\nfrom logging import StreamHandler\n\nfrom time import sleep\n\n__author__ = 'Mour Keita' \n__copyright__ = '2017'\n\nENDPOINT = 'fcu.eu-west-2.outscale.com' \nZONE = 'eu-west-2'\nAVAIBILITY_ZONE_A =  'eu-west-2a'\nAVAIBILITY_ZONE_B =  'eu-west-2b'\n\nINSTANCE_TYPE_A = 't1.micro' \nINSTANCE_TYPE_B = 'm1.small' #NFS\nINSTANCE_TYPE_C = 'c3.large' #SSD\nINSTANCE_TYPE_D = 'og4.xlarge' \n\n# m3.medium SSD\n# m3.large SSD\n#\n\nVOLUME_TYPES = [ 'standard', 'io1', 'gp2' ]\n\nKVM = [\n	'hk2-ucs1-pr-kvm-12'\n	]\n\nOMI = 'ami-653497a7' # Win r 2012\n\nKEY = 'qpats'\n\ndef main():\n\n	logger = logging.getLogger()\n	logger.setLevel(logging.DEBUG)\n\n	formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')\n\n	stream_handler = logging.StreamHandler()\n	stream_handler.setLevel(logging.INFO)\n	stream_handler.setFormatter(formatter)\n	logger.addHandler(stream_handler)\n\n	logger.info(\"Début du test...\")\n	\n\n	print \"hello\"\n\n	try:\n		# Create default HTTPS context\n		ssl._create_default_https_context = ssl._create_unverified_context\n\n		region = boto.ec2.regioninfo.RegionInfo( ZONE, endpoint = ENDPOINT )\n\n		# Create a VPC connection\n		logger.info(\"VPC connection...\")\n		conn    =    boto.vpc.VPCConnection ( region  =  region ,   aws_access_key_id  =  'V31Y02V151XKPPH4D2C0' ,   aws_secret_access_key  ='T9SkImC41kOPswcqp7DhyWy7JLphFoxQLL4usSuh', validate_certs=False )\n\n		# Create a Block device mapping\n		mapping    =    BlockDeviceMapping ()\n		mapping2    =    BlockDeviceMapping ()\n		# Map the block device with an ephemeral type\n\n		mapping [ '/dev/xvdd' ] = BlockDeviceType( ephemeral_name  =  'ephemeral0' )\n		mapping2 [ '/dev/xvdd' ] = BlockDeviceType( ephemeral_name  =  'ephemeral0' )\n\n		# Keypairs creation\n		# time.sleep(2)\n		# key_pair = conn.create_key_pair(KEY_PAIR_NAME)\n		# key_pair.save(os.environ['HOME'])\n		# logger.info(\"Nouvelle keypair : %s \" % KEY_PAIR_NAME)\n		logger.info(\"Creation des VMs...\")\n		#resa = conn.run_instances ( image_id  =  OMI, key_name = KEY,  user_data=\"-----BEGIN OUTSCALE SECTION-----\\npin=hk2-ucs1-pr-kvm-12\\n-----END OUTSCALE SECTION-----\", instance_type  = INSTANCE_TYPE_A, placement=AVAIBILITY_ZONE_A)\n		#resa2 = conn.run_instances ( image_id  =  OMI , key_name = KEY, user_data=\"-----BEGIN OUTSCALE SECTION-----\\npin=hk2-ucs1-pr-kvm-1\\n-----END OUTSCALE SECTION-----\", block_device_map  =  mapping, instance_type  = INSTANCE_TYPE_C, placement=AVAIBILITY_ZONE_B)\n		resa3 = conn.run_instances ( image_id  =  OMI , key_name = KEY, block_device_map  =  mapping, instance_type  = INSTANCE_TYPE_D, placement=AVAIBILITY_ZONE_B	)\n		#resa4 = conn.run_instances ( image_id  =  'ami-0175d923' ,  key_name = 'mka-kp',  user_data=\"-----BEGIN OUTSCALE SECTION-----\\npin=par4-ucs2-pr-nvkvm-14\\n-----END OUTSCALE SECTION-----\",   block_device_map  =  mapping4, instance_type  = 'mv3.large', placement=AVAIBILITY_ZONE_B)\n\n		#inst = resa.instances[0]\n		#inst2 = resa2.instances[0]\n		inst3 = resa3.instances[0]\n		while inst3.update() != \"running\":\n			logger.info(\"Instance : {} ...\".format(inst3.update()))\n			time.sleep(5)\n		# while inst2.update() != \"running\":\n		# 	logger.info(\"Instance : 	{} ...\".format(inst2.update()))\n		# 	time.sleep(5)\n		#while inst3.update() != \"running\":\n		#	logger.info(\"Instance : {} ...\".format(inst3.update()))\n		#	time.sleep(5)\n\n\n	except EC2ResponseError as error:\n		raise AssertionError(error.message)\n\n\nif __name__ == \"__main__\":\n	main()\n",
+			"file": "/Users/mourkeita/dev/mka-eu-1ephemeral.py",
+			"file_size": 3859,
+			"file_write_time": 1495555201000000,
+			"settings":
+			{
+				"buffer_size": 3857,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-in-1instance-ephemeral.py",
+			"settings":
+			{
+				"buffer_size": 2756,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-in2-1-instance-ephemeral.py",
+			"settings":
+			{
+				"buffer_size": 2860,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/tina.lbu.IN.py",
+			"settings":
+			{
+				"buffer_size": 2629,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-sv1-pin-nfs-ssd.py",
+			"settings":
+			{
+				"buffer_size": 5289,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-in2-250-instance.py",
+			"settings":
+			{
+				"buffer_size": 2524,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-ka/osc-qa/BLADE/blade_quality_assessment_with_vpc.py",
+			"settings":
+			{
+				"buffer_size": 34869,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-in-dhcp-options.py",
+			"settings":
+			{
+				"buffer_size": 6469,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-ka/osc-qa/tools/config/regions.py",
+			"settings":
+			{
+				"buffer_size": 7210,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-nj-pin-ephemeral.py",
+			"settings":
+			{
+				"buffer_size": 2979,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/mka-nj-pin-gpu.py",
+			"settings":
+			{
+				"buffer_size": 3104,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#! /usr/bin/python\n# coding : utf8\n\nimport redis\n\ndef connection():\n    try:\n        conn = redis.StrictRedis('ows-171-33-107-176.eu-west-2.compute.outscale.com', 6379)\n        if conn:\n            print \"Connexion faite ...\"\n            conn.ping()\n            return conn\n        else:\n            print \"Connection non faite...\"\n    except BaseException as e:\n        print str(e)\n\ndef get_valeur(cle):\n    conn = connection()\n    print conn.get(cle)\n\ndef set_valeur(cle, valeur):\n    conn = connection()\n    print conn.set(cle, valeur)\n\nset_valeur('nom', 'mour')\nget_valeur('cle')",
+			"file": "/Users/mourkeita/dev/redis.py",
+			"file_size": 584,
+			"file_write_time": 1499693147000000,
+			"settings":
+			{
+				"buffer_size": 584,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/testHeaders.sh",
+			"settings":
+			{
+				"buffer_size": 1229,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/BLADE/blade_quality_assessment2.py",
+			"settings":
+			{
+				"buffer_size": 36119,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-ka/osc-qa/BLADE/blade_quality_assessment2.py",
+			"settings":
+			{
+				"buffer_size": 35494,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#!/bin/bash\n\n#cd ./BLADE\n\ncp BLADE/blade_quality_assessment2.py tmptest.py\n#kvm_capacity=76\n#instance_type= tina.c1r1\n#kvm=nj1-ucs1-pr-kvm-21\n\n\n# CAUTION : THE SCRIPT NEED AK/SK OF A \n# QPATS ACCOUNT !!!!!!\n\nif [ $ZONE = \"us2\" ]\nthen\n  endpoint=fcu.us-east-2.outscale.com \n  ak=V31Y02V151XKPPH4D2C0\n  sk=T9SkImC41kOPswcqp7DhyWy7JLphFoxQLL4usSuh\n  ami=ami-9d5fe952\nelif [ $ZONE = \"eu1\" ]\nthen\n  endpoint=api.outscale.com\n  ak=DU144IC7MXSCA7FENLNW\n  sk=kUIGosdqSXrwYmPHilP45F8XhORd6987+mu+w5lB\n  ami=ami-219594b6\nelif [ $ZONE = \"us1\" ]\nthen\n  endpoint=api.outscale.us\n  ak=5LTIQKFQ2YLWA7OWYKRY\n  sk=YN+ypGsR/DnBOo2XmIUd47ptWDIhqkvF9eepyhBi\n  ami=ami-c2a33c08\nelif [ $ZONE = \"cn1\" ]\nthen\n  endpoint=fcu.cn-southeast-1.outscale.hk\n  ak=UQ9D8TWQ7BE0C5WBLFAE\n  sk=3EoSqTVFPDzAxscVIh+wuJ3gPvPOdwO9q7zk8FJT\n  ami=ami-027cf415\n  # ami=ami-3554c2dd\nelif [ $ZONE = \"eu2\" ]\nthen\n  endpoint=fcu.eu-west-2.outscale.com\n  ak=V31Y02V151XKPPH4D2C0\n  sk=T9SkImC41kOPswcqp7DhyWy7JLphFoxQLL4usSuh\n  ami=ami-2472c655\nelif [ $ZONE = \"in1\" ]\nthen\n  endpoint=fcu.in-west-1.outscale.com\n  ak=B3QFGQ6I6BFFCH4BBEBO\n  sk=MNMX6HDCNT9TFC20GETLH7IJC33STHWPQ8CZFZYL\n  ami=ami-3d4a9c43\nelif [ $ZONE = \"in2\" ]\nthen\n  endpoint=fcu.in-west-2.outscale.com\n  ak=UULHXX1CBLTXWYFNHWXH\n  sk=SI6643ITW3XVZZJ07NAI14X7JAQAFLHOOXGV1TGA\n  ami=ami-1a7f951b\nelif [ $ZONE = \"sv1\" ]\nthen\n  endpoint=fcu.us-west-1.outscale.com\n  ak=V31Y02V151XKPPH4D2C0\n  sk=T9SkImC41kOPswcqp7DhyWy7JLphFoxQLL4usSuh\n  ami=ami-fc47b127\nelif [ $ZONE = \"hk2\" ]\nthen\n  endpoint=fcu.cn-southeast-1.outscale.hk\n  ak=UQ9D8TWQ7BE0C5WBLFAE\n  sk=3EoSqTVFPDzAxscVIh+wuJ3gPvPOdwO9q7zk8FJT\n  ami=ami-61e8b386\nfi\n\nif [$USER = \"qpats\" ]\nthen\n  sshkey=qpats\n  keyfile=~/.ssh/qpats-keypair.priv\nelif [ $USER = \"foobar\" ]\nthen\n  sshkey=foobar\n  keyfile=~/.ssh/foobar-keypair.priv\nfi\n#if [ $supported_instance = \"all\" ]\n#then\n#	supported_instance='*'\n#fi\n\n\n#echo\n#echo https://admin-par1-pr.outscale.com:444/hardware/view/$kvm\n#echo\n\nset -x\nstdbuf -oL python tmptest.py \\\n	--az $availability_zone \\\n	--endpoint $endpoint \\\n    --access-key $ak \\\n    --secret-key $sk \\\n    --ami-id $ami \\\n    --ssh-key $sshkey \\\n    --private-key-file $keyfile \\\n    --kvm $kvm \\\n    $no_hdd $no_ssd \\\n    --kvm-capacity $kvm_capacity  \\\n    --instance-type $instance_type \\\n    --supported-instance-type $supported_instance  \\\n    $fragment_run_instance \\\n	--ram $ram \\\n    --core $core \\\n    $no_gpu\n   ",
+			"settings":
+			{
+				"buffer_size": 2402,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/BLADE/blade_quality_assessment_with_vpc.py",
+			"settings":
+			{
+				"buffer_size": 34803,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/NIC_attach_in_running_instances.py",
+			"settings":
+			{
+				"buffer_size": 9159,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/automation-scripts/manual_test.bash",
+			"settings":
+			{
+				"buffer_size": 9635,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/verify_piops_quota.py",
+			"settings":
+			{
+				"buffer_size": 3808,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/test.AZ07.sh",
+			"settings":
+			{
+				"buffer_size": 377,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/icu_check_signature_test.py",
+			"settings":
+			{
+				"buffer_size": 6312,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/outscale_placement_tags.py",
+			"settings":
+			{
+				"buffer_size": 4432,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/Basic_tests/intel_reserved_instance_get_all_never_returns.py",
+			"settings":
+			{
+				"buffer_size": 873,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/qa_tina/functional/fcu/DHCPOptions/TestOMICompatibility.py",
+			"settings":
+			{
+				"buffer_size": 18648,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/AMI/run_windows_on_kvm.py",
+			"settings":
+			{
+				"buffer_size": 12689,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/AMI/windows-prepare.ps1",
+			"settings":
+			{
+				"buffer_size": 666,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/osc-qa/AMI/windows-startup.ps1",
+			"settings":
+			{
+				"buffer_size": 6576,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/apps.py",
+			"settings":
+			{
+				"buffer_size": 120,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/models.py",
+			"settings":
+			{
+				"buffer_size": 385,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/admin.py",
+			"settings":
+			{
+				"buffer_size": 110,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/urls.py",
+			"settings":
+			{
+				"buffer_size": 630,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "# coding: utf-8\n\n\nfrom django.shortcuts import render\nfrom django.shortcuts import render_to_response\nfrom django.template import RequestContext\nfrom qa.models import Qa\nfrom django.http import HttpResponseRedirect\nfrom django.views.decorators.csrf import csrf_exempt\nfrom django.shortcuts import redirect\n\nfrom .forms import QaForm\n\n# Create your views here.\n\nfrom django.http import HttpResponse\n\n\ndef index(request):\n    return HttpResponseRedirect(\"/login\")\n\ndef api(request):\n    return render_to_response('api.html')\n\ndef listUsers(request):\n    users = Qa.objects.all().order_by('id')\n    total_age = 0\n    name_length = 0\n    for user in users:\n        name_length = user.first.__sizeof__() + user.last.__sizeof__()\n        total_age = total_age + user.age\n        print name_length\n\n    context = {'users':users, 'total_age':total_age}\n    #context2 = {'total_age':total_age}\n    return render(request, 'qa.html', context )\n\ndef texte(request):\n        HttpResponse(\"<h3>Hello this is a test</h3>\")\n\ndef newuser(request):\n    form = QaForm()\n    message = '*Erreur. Email existant.'\n    return render(request, 'new_user.html', {'form':form}, {'message':message})\n\ndef delete(request):\n    '''\n    Get the user id\n    delete it from database\n    '''\n    user = Qa.objects.all()\n    if request.method=='POST':\n        user.delete()\n        return redirect('/listUsers')\n    return render(request, 'listUsers', {'object':user})\n\ndef userdetails(request):\n    post = request.POST\n    form = QaForm(post)\n    if form.is_valid():\n        form.save()\n        return render(request, 'user_details.html', {'post':post} )\n    else:\n        return HttpResponseRedirect('/newuser')\n\ndef logout(request):\n    request.session['username'] = ''\n    return render_to_response('logout.html')\n\ndef welcome(request):\n    username = request.session['username']\n    return render_to_response('welcome.html', {'username':username})\n\n@csrf_exempt \ndef login(request):\n    username = \"not logged in\"\n    if len(request.POST) > 0:\n        if 'email' not in request.POST or 'password' not in request.POST:\n            error = 'Veuillez entrer un email et un mot de passe'\n            return render_to_response('login.html', {'error':error})\n        else:\n            email = request.POST['email']\n            password = request.POST['password']\n            result = Qa.objects.filter(email=email).first()\n            if not result or email != result.email or password != result.password:\n                error = u'Mot de passe ou email erroné'\n                return render_to_response('login.html', {'error':error})\n            else:\n               result = Qa.objects.filter(email=email).first()\n               nom = result.first\n               request.session['username'] = nom.capitalize()\n               username = request.session['username']\n               return HttpResponseRedirect('/welcome')\n    else:\n        return render_to_response('login.html')\n",
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/views.py",
+			"file_size": 2940,
+			"file_write_time": 1493977785000000,
+			"settings":
+			{
+				"buffer_size": 2943,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/forms.py",
+			"settings":
+			{
+				"buffer_size": 269,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/base.html",
+			"settings":
+			{
+				"buffer_size": 3592,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/qa.html",
+			"settings":
+			{
+				"buffer_size": 2409,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/api.html",
+			"settings":
+			{
+				"buffer_size": 462,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/login.html",
+			"settings":
+			{
+				"buffer_size": 1611,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/logout.html",
+			"settings":
+			{
+				"buffer_size": 85,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/new_user.html",
+			"settings":
+			{
+				"buffer_size": 842,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/user_details.html",
+			"settings":
+			{
+				"buffer_size": 356,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "	{% extends \"base.html\" %}\n{% block content %}\nBienvenue {{ username }}\n\n{% endblock %}\n\n",
+			"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/welcome.html",
+			"file_size": 88,
+			"file_write_time": 1485854267000000,
+			"settings":
+			{
+				"buffer_size": 89,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/admin.py",
+			"settings":
+			{
+				"buffer_size": 124,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/urls.py",
+			"settings":
+			{
+				"buffer_size": 370,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/views.py",
+			"settings":
+			{
+				"buffer_size": 666,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#! /usr/bin/python\n# coding: utf8\n\nimport os\n\nclass Config():\n	DEBUG = False\n	CSRF_ENABLED = True\n	SECRET = os.getenv.('SECRET')\n	SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')\n\nclass DevelopmentConfig(Config):\n	DEBUG = True\n\n\nclass TestingConfig(Config):\n	DEBUG = True\n\nclass StagingConfig(Config):\n	DEBUG = True\n\nclass ProductionConfig(Config):\n	DEBUG = False\n	TESTING = False\n\n\napp_config = {\n	'testing' : TestingConfig,\n	'production' : ProductionConfig,\n	'staging' : StagingConfig,\n	'development' : DevelopmentConfig\n}",
+			"file": "config.py",
+			"file_size": 508,
+			"file_write_time": 1501515699000000,
+			"settings":
+			{
+				"buffer_size": 527,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "flask-gimera.sublime-project",
+			"settings":
+			{
+				"buffer_size": 277,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/forms.py",
+			"settings":
+			{
+				"buffer_size": 1312,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/models.py",
+			"settings":
+			{
+				"buffer_size": 382,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/machine/models.py",
+			"settings":
+			{
+				"buffer_size": 98,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/machine/views.py",
+			"settings":
+			{
+				"buffer_size": 63,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/rh/settings.py",
+			"settings":
+			{
+				"buffer_size": 3228,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/machine/apps.py",
+			"settings":
+			{
+				"buffer_size": 129,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/rh/urls.py",
+			"settings":
+			{
+				"buffer_size": 851,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_form.html",
+			"settings":
+			{
+				"buffer_size": 107,
+				"line_ending": "Unix",
+				"name": "<form method=\"post\">{% csrf_token %}"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_list.html",
+			"settings":
+			{
+				"buffer_size": 292,
+				"line_ending": "Unix",
+				"name": "<h1>Servers</h1>"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_confirm_delete.html",
+			"settings":
+			{
+				"buffer_size": 140,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/top.sls",
+			"settings":
+			{
+				"buffer_size": 117,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/hello.sls",
+			"settings":
+			{
+				"buffer_size": 89,
+				"line_ending": "Unix",
+				"name": "{% set titre = 'Hello world in salt !'%}"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/update.sls",
+			"settings":
+			{
+				"buffer_size": 85,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/web.sls",
+			"settings":
+			{
+				"buffer_size": 452,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/virtualenv.sls",
+			"settings":
+			{
+				"buffer_size": 177,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/server.sls",
+			"settings":
+			{
+				"buffer_size": 112,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/vim.sls",
+			"settings":
+			{
+				"buffer_size": 30,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/nano.sls",
+			"settings":
+			{
+				"buffer_size": 27,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/create_dir.sls",
+			"settings":
+			{
+				"buffer_size": 101,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/install_pip.sls",
+			"settings":
+			{
+				"buffer_size": 157,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/salt/utf.sls",
+			"settings":
+			{
+				"buffer_size": 151,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/pillar/default.sls",
+			"settings":
+			{
+				"buffer_size": 76,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/pillar/affiche.sls",
+			"settings":
+			{
+				"buffer_size": 88,
+				"line_ending": "Unix",
+				"name": "{% set titre = 'Hello world in salt !'%}"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/salt-first/pillar/top.sls",
+			"settings":
+			{
+				"buffer_size": 27,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/mourkeita/dev/python-scripts/anagram.py",
+			"settings":
+			{
+				"buffer_size": 678,
+				"line_ending": "Unix",
+				"name": "#! /usr/bin/env python"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 47.0,
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 143.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/mourkeita/osc-ka/osc-qa/cockpit_TP/common.py",
+		"/Users/mourkeita/osc-ka/osc-qa/BLADE/blade_quality_assessment_with_vpc_mod.py",
+		"/Users/mourkeita/dev/intel.py",
+		"/Users/mourkeita/dev/osc-qa/Basic_tests/intel_reserved_instance_get_all_never_returns.py",
+		"/Users/mourkeita/dev/django-rh/rh/servers/url.py",
+		"/Users/mourkeita/dev/django-rh/rh/servers/tests.py",
+		"/Users/mourkeita/dev/django-rh/rh/machine/admin.py",
+		"/Users/mourkeita/dev/nj_ephemeral.py",
+		"/Users/mourkeita/dev/api.py",
+		"/Users/mourkeita/dev/mka_in_nfs_ephemeral.py",
+		"/Users/mourkeita/osc-qa/qa_tina/use_cases/test_apithrottling.py"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"pin",
+			"get_pining_on_kvm_user_data",
+			"format",
+			"sec",
+			"xsub",
+			"nb_retry",
+			"ssh conn",
+			"bpython",
+			"ssh conn",
+			"ssh connect",
+			"open_session",
+			"DEV",
+			"test_instance",
+			"expected_keyword",
+			"private",
+			"args.pr",
+			"request",
+			"open",
+			"open_session",
+			"create_EIP_address",
+			" \"})",
+			"timeout",
+			"chaine",
+			"ram",
+			"m4.",
+			"Exception",
+			"trying",
+			"Exception",
+			"Trying to spawn ",
+			"requests",
+			"#!"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"word"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/Users/mourkeita/osc-ka/osc-qa/Basic_tests/create_instances_generic.py",
+					"settings":
+					{
+						"buffer_size": 3954,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1739,
+								1739
+							]
+						],
+						"settings":
+						{
+							"auto_name": "#! /usr/bin/python",
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 765.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/mourkeita/dev/osc-qa/Basic_tests/direct_link_quota_ressources_test.py",
+					"settings":
+					{
+						"buffer_size": 6636,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1121,
+								1125
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1750.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/mourkeita/dev/mka-eu-instance-pin-gpu.py",
+					"settings":
+					{
+						"buffer_size": 5509,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5006,
+								5006
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 133.0,
+						"translation.y": 1264.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/mourkeita/osc-ka/osc-qa/Basic_tests/014_manual_test.py",
+					"settings":
+					{
+						"buffer_size": 5164,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3553,
+								3553
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1989.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/Users/mourkeita/dev/mka-eu-pin.py",
+					"settings":
+					{
+						"buffer_size": 4067,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3139,
+								3174
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 584.0,
+						"translation.y": 960.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Users/mourkeita/dev/mka-eu-1ephemeral.py",
+					"settings":
+					{
+						"buffer_size": 3857,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1169,
+								1169
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 835.0,
+						"translation.y": 910.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Users/mourkeita/dev/mka-in-1instance-ephemeral.py",
+					"settings":
+					{
+						"buffer_size": 2756,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2248,
+								2506
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 604.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/mourkeita/dev/mka-in2-1-instance-ephemeral.py",
+					"settings":
+					{
+						"buffer_size": 2860,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2515,
+								2544
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 418.0,
+						"translation.y": 529.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/Users/mourkeita/dev/tina.lbu.IN.py",
+					"settings":
+					{
+						"buffer_size": 2629,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								841,
+								841
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/Users/mourkeita/dev/mka-sv1-pin-nfs-ssd.py",
+					"settings":
+					{
+						"buffer_size": 5289,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								964,
+								964
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 663.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/Users/mourkeita/dev/mka-in2-250-instance.py",
+					"settings":
+					{
+						"buffer_size": 2524,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2184,
+								2184
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 260.0,
+						"translation.y": 486.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "/Users/mourkeita/osc-ka/osc-qa/BLADE/blade_quality_assessment_with_vpc.py",
+					"settings":
+					{
+						"buffer_size": 34869,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								33404,
+								33404
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 12545.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "/Users/mourkeita/dev/mka-in-dhcp-options.py",
+					"settings":
+					{
+						"buffer_size": 6469,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1758,
+								1758
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "/Users/mourkeita/osc-ka/osc-qa/tools/config/regions.py",
+					"settings":
+					{
+						"buffer_size": 7210,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								888,
+								896
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 5,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "/Users/mourkeita/dev/mka-nj-pin-ephemeral.py",
+					"settings":
+					{
+						"buffer_size": 2979,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1949,
+								1940
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 140.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "/Users/mourkeita/dev/mka-nj-pin-gpu.py",
+					"settings":
+					{
+						"buffer_size": 3104,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1971,
+								1971
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 681.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "/Users/mourkeita/dev/redis.py",
+					"settings":
+					{
+						"buffer_size": 584,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								584,
+								584
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"file": "/Users/mourkeita/dev/testHeaders.sh",
+					"settings":
+					{
+						"buffer_size": 1229,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1090,
+								1090
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 18,
+					"file": "/Users/mourkeita/osc-qa/BLADE/blade_quality_assessment2.py",
+					"settings":
+					{
+						"buffer_size": 36119,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								31778,
+								31781
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1679.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 19,
+					"file": "/Users/mourkeita/osc-ka/osc-qa/BLADE/blade_quality_assessment2.py",
+					"settings":
+					{
+						"buffer_size": 35494,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								31834,
+								31834
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 9984.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 20,
+					"settings":
+					{
+						"buffer_size": 2402,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2176,
+								2176
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 813.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 21,
+					"file": "/Users/mourkeita/osc-qa/BLADE/blade_quality_assessment_with_vpc.py",
+					"settings":
+					{
+						"buffer_size": 34803,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								33048,
+								33048
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 22,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/NIC_attach_in_running_instances.py",
+					"settings":
+					{
+						"buffer_size": 9159,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6458,
+								6458
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 23,
+					"file": "/Users/mourkeita/osc-qa/automation-scripts/manual_test.bash",
+					"settings":
+					{
+						"buffer_size": 9635,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5897,
+								5897
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 24,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/verify_piops_quota.py",
+					"settings":
+					{
+						"buffer_size": 3808,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2885,
+								2885
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 64.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 25,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/test.AZ07.sh",
+					"settings":
+					{
+						"buffer_size": 377,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								362,
+								362
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 26,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/icu_check_signature_test.py",
+					"settings":
+					{
+						"buffer_size": 6312,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 241.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 27,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/outscale_placement_tags.py",
+					"settings":
+					{
+						"buffer_size": 4432,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3729,
+								3729
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1437.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 28,
+					"file": "/Users/mourkeita/osc-qa/Basic_tests/intel_reserved_instance_get_all_never_returns.py",
+					"settings":
+					{
+						"buffer_size": 873,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								100,
+								100
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 29,
+					"file": "/Users/mourkeita/osc-qa/qa_tina/functional/fcu/DHCPOptions/TestOMICompatibility.py",
+					"settings":
+					{
+						"buffer_size": 18648,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								17511,
+								17511
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 384.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 30,
+					"file": "/Users/mourkeita/osc-qa/AMI/run_windows_on_kvm.py",
+					"settings":
+					{
+						"buffer_size": 12689,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4359,
+								4367
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3518.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 31,
+					"file": "/Users/mourkeita/osc-qa/AMI/windows-prepare.ps1",
+					"settings":
+					{
+						"buffer_size": 666,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								665,
+								665
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 32,
+					"file": "/Users/mourkeita/osc-qa/AMI/windows-startup.ps1",
+					"settings":
+					{
+						"buffer_size": 6576,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								835,
+								835
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 7,
+			"sheets":
+			[
+				{
+					"buffer": 33,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/apps.py",
+					"settings":
+					{
+						"buffer_size": 120,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								120,
+								120
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 34,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/models.py",
+					"settings":
+					{
+						"buffer_size": 385,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								385,
+								385
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 35,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/admin.py",
+					"settings":
+					{
+						"buffer_size": 110,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								110,
+								110
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 36,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/urls.py",
+					"settings":
+					{
+						"buffer_size": 630,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								630,
+								630
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 37,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/views.py",
+					"settings":
+					{
+						"buffer_size": 2943,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2525,
+								2525
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 38,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/forms.py",
+					"settings":
+					{
+						"buffer_size": 269,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								269,
+								269
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 39,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/base.html",
+					"settings":
+					{
+						"buffer_size": 3592,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2594,
+								2594
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 40,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/qa.html",
+					"settings":
+					{
+						"buffer_size": 2409,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								943,
+								943
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 50.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 41,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/api.html",
+					"settings":
+					{
+						"buffer_size": 462,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								433,
+								433
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 42,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/login.html",
+					"settings":
+					{
+						"buffer_size": 1611,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 43,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/logout.html",
+					"settings":
+					{
+						"buffer_size": 85,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								85,
+								85
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 44,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/new_user.html",
+					"settings":
+					{
+						"buffer_size": 842,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								318,
+								310
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 45,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/user_details.html",
+					"settings":
+					{
+						"buffer_size": 356,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 46,
+					"file": "/Users/mourkeita/dev/django-rh/rh/qa/templates/welcome.html",
+					"settings":
+					{
+						"buffer_size": 89,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1,
+								1
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 47,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/admin.py",
+					"settings":
+					{
+						"buffer_size": 124,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								124,
+								124
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 48,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/urls.py",
+					"settings":
+					{
+						"buffer_size": 370,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								370,
+								370
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 49,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/views.py",
+					"settings":
+					{
+						"buffer_size": 666,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								214,
+								214
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 50,
+					"file": "config.py",
+					"settings":
+					{
+						"buffer_size": 527,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								385,
+								385
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 51,
+					"file": "flask-gimera.sublime-project",
+					"settings":
+					{
+						"buffer_size": 277,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								277,
+								277
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 52,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/forms.py",
+					"settings":
+					{
+						"buffer_size": 1312,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								245,
+								245
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 53,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/models.py",
+					"settings":
+					{
+						"buffer_size": 382,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								184,
+								184
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 54,
+					"file": "/Users/mourkeita/dev/django-rh/rh/machine/models.py",
+					"settings":
+					{
+						"buffer_size": 98,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								98,
+								98
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 55,
+					"file": "/Users/mourkeita/dev/django-rh/rh/machine/views.py",
+					"settings":
+					{
+						"buffer_size": 63,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								63,
+								63
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 56,
+					"file": "/Users/mourkeita/dev/django-rh/rh/rh/settings.py",
+					"settings":
+					{
+						"buffer_size": 3228,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1852,
+								1852
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 57,
+					"file": "/Users/mourkeita/dev/django-rh/rh/machine/apps.py",
+					"settings":
+					{
+						"buffer_size": 129,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								76,
+								76
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 58,
+					"file": "/Users/mourkeita/dev/django-rh/rh/rh/urls.py",
+					"settings":
+					{
+						"buffer_size": 851,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								163,
+								163
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 59,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_form.html",
+					"settings":
+					{
+						"buffer_size": 107,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								107,
+								107
+							]
+						],
+						"settings":
+						{
+							"auto_name": "<form method=\"post\">{% csrf_token %}",
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 60,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_list.html",
+					"settings":
+					{
+						"buffer_size": 292,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								292,
+								292
+							]
+						],
+						"settings":
+						{
+							"auto_name": "<h1>Servers</h1>",
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 61,
+					"file": "/Users/mourkeita/dev/django-rh/rh/servers/templates/server_confirm_delete.html",
+					"settings":
+					{
+						"buffer_size": 140,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								140,
+								140
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 62,
+					"file": "/Users/mourkeita/dev/salt-first/salt/top.sls",
+					"settings":
+					{
+						"buffer_size": 117,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								99,
+								99
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 63,
+					"file": "/Users/mourkeita/dev/salt-first/salt/hello.sls",
+					"settings":
+					{
+						"buffer_size": 89,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								89,
+								89
+							]
+						],
+						"settings":
+						{
+							"auto_name": "{% set titre = 'Hello world in salt !'%}",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 64,
+					"file": "/Users/mourkeita/dev/salt-first/salt/update.sls",
+					"settings":
+					{
+						"buffer_size": 85,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								85,
+								85
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 65,
+					"file": "/Users/mourkeita/dev/salt-first/salt/web.sls",
+					"settings":
+					{
+						"buffer_size": 452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								323,
+								323
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 66,
+					"file": "/Users/mourkeita/dev/salt-first/salt/virtualenv.sls",
+					"settings":
+					{
+						"buffer_size": 177,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								177,
+								177
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 67,
+					"file": "/Users/mourkeita/dev/salt-first/salt/server.sls",
+					"settings":
+					{
+						"buffer_size": 112,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 68,
+					"file": "/Users/mourkeita/dev/salt-first/salt/vim.sls",
+					"settings":
+					{
+						"buffer_size": 30,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								30,
+								30
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 69,
+					"file": "/Users/mourkeita/dev/salt-first/salt/nano.sls",
+					"settings":
+					{
+						"buffer_size": 27,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								27,
+								27
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 70,
+					"file": "/Users/mourkeita/dev/salt-first/salt/create_dir.sls",
+					"settings":
+					{
+						"buffer_size": 101,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								101,
+								101
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 71,
+					"file": "/Users/mourkeita/dev/salt-first/salt/install_pip.sls",
+					"settings":
+					{
+						"buffer_size": 157,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 72,
+					"file": "/Users/mourkeita/dev/salt-first/salt/utf.sls",
+					"settings":
+					{
+						"buffer_size": 151,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 73,
+					"file": "/Users/mourkeita/dev/salt-first/pillar/default.sls",
+					"settings":
+					{
+						"buffer_size": 76,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								76,
+								76
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 74,
+					"file": "/Users/mourkeita/dev/salt-first/pillar/affiche.sls",
+					"settings":
+					{
+						"buffer_size": 88,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								88,
+								88
+							]
+						],
+						"settings":
+						{
+							"auto_name": "{% set titre = 'Hello world in salt !'%}",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 75,
+					"file": "/Users/mourkeita/dev/salt-first/pillar/top.sls",
+					"settings":
+					{
+						"buffer_size": 27,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								27,
+								27
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 76,
+					"file": "/Users/mourkeita/dev/python-scripts/anagram.py",
+					"settings":
+					{
+						"buffer_size": 678,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								557,
+								557
+							]
+						],
+						"settings":
+						{
+							"auto_name": "#! /usr/bin/env python",
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			],
+			[
+				0,
+				1,
+				1,
+				2
+			],
+			[
+				1,
+				1,
+				2,
+				2
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.52226379108,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			0.404837834973,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true
+}

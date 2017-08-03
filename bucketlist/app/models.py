@@ -64,3 +64,4 @@ class Personne(db.Model):
         personnes = Personne.query.all()
         for personne in personnes:
             db.session.delete(personne)
+            db.session.commit()

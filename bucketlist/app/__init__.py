@@ -20,6 +20,23 @@ def create_app(config_name):
 	app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 	db.init_app(app)
 
+	@app.route('/personnes/delete', methods=['GET'])
+	def personne_delete():
+		result = []
+		if request.method == 'GET':
+			personnes = Personne.get_all()
+			for personne in personnes:
+				personne.delete()
+				obj = {
+				'id': personne.id,
+				'name': personne.name,
+				'status': 'deleted'
+				}
+				result.append(obj)
+			response = jsonify(result)
+			response.status_code = 200
+		return response
+
 	@app.route('/personnes/', methods=['GET','POST'])
 	def personnes():
 		result = []

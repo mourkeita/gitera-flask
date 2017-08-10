@@ -15,8 +15,6 @@ class Bucketlist(db.Model):
     def __init__(self, name):
         """initialize with name."""
         self.name = name
-        self.lastname = lastname
-        self.age = age
 
     def save(self):
         db.session.add(self)

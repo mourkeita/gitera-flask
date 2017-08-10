@@ -39,6 +39,13 @@ def create_app(config_name):
 
 	@app.route('/personnes/', methods=['GET','POST'])
 	def personnes():
+		'''
+		curl -H "Content-Type: application/json" \
+		-X GET http://localhost:5000/personnes/
+
+		curl -H "Content-Type: application/json" -X POST -d '{"name":"KEITA", \
+		"lastname":"Mour", "age":32}' http://localhost:5000/personnes/
+		''' 
 		result = []
 		if request.method == 'GET':
 			personnes = Personne.query.all()
@@ -54,6 +61,7 @@ def create_app(config_name):
 			response.status_code = 200
 			return response
 		if request.method == 'POST':
+
 			name = request.data.get('name')
 			lastname = request.data.get('lastname')
 			age = request.data.get('age')
